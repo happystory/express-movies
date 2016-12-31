@@ -5,15 +5,18 @@ const mongoose = require('mongoose');
 // 不使用mpromise
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const Movie = require('./models/movie');
-
+const User = require('./models/user');
 const port = process.env.PORT || 3000;
 var app = express();
+var dbUrl = 'mongodb://localhost/imooc';
 
 app.locals.moment = require('moment');
 
 // imooc 是数据库名
-mongoose.connect('mongodb://localhost/imooc');
+mongoose.connect(dbUrl);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -24,12 +27,34 @@ app.use(express.static(path.join(__dirname + '/public')));
 // parse application/x-www-form-urlencoded 
 // if extended is true, https://www.npmjs.com/package/qs#readme
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    name: 'imooc_movie', // session ID, the default value is 'connect.sid'
+    secret: 'imooc', // This is the secret used to sign the session ID cookie
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 3600000
+    },
+    store: new MongoStore({
+       url: dbUrl,
+       collection: 'sessions'
+    })
+}));
 
 app.set('views', './views/pages');
 app.set('view engine', 'jade');
 
 app.listen(port);
 console.log('imooc started on port ' + port);
+
+// 判断登录状态中间件
+app.use((req, res, next) => {
+    var _user = req.session.user;
+    if (_user) {
+        res.locals.user = _user;
+    }
+    next();
+});
 
 // index page
 app.get('/', (req, res) => {
@@ -44,6 +69,73 @@ app.get('/', (req, res) => {
              * [{ title, _id, poster }]
              */
             movies: movies
+        });
+    });
+});
+
+// signup
+app.post('/user/signup', (req, res) => {
+    var _user = req.body.user;
+
+    User.findOne({name: _user.name}, function(err, user) {
+        if (err) {
+            console.error(err);
+        }
+        if (user) {
+            return res.redirect(303, '/');
+        } else {
+            user = new User(_user);
+            user.save(function(err, user) {
+                if (err) {
+                    console.error(err);
+                }
+                res.redirect(303, '/admin/userlist');
+            });
+        }
+    });
+});
+
+// signin
+app.post('/user/signin', (req, res) => {
+    var _user = req.body.user;
+    var name = _user.name;
+    var password = _user.password;
+
+    User.findOne({name: name}, function(err, user) {
+        if (err) {
+            console.error(err);
+        }
+
+        if (!user) {
+            return res.redirect(303, '/');
+        }
+
+        user.comparePassword(password, function(err, isMatch) {
+            if (isMatch) {
+                req.session.user = user;
+                return res.redirect(303, '/');
+            } else {
+                console.log('Password is not matched');
+            }
+        });
+    });
+});
+
+// logout
+app.get('/logout', (req, res) => {
+    delete req.session.user;
+    res.redirect(303, '/');
+});
+
+// userlist page
+app.get('/admin/userlist', (req, res) => {
+    User.fetch((err, users) => {
+        if (err) {
+            console.log(err);
+        }
+        res.render('userlist', {
+            title: 'imooc 用户列表页',
+            users: users
         });
     });
 });
