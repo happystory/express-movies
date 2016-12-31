@@ -13,6 +13,8 @@ module.exports = function(app) {
 
 
     // User
+    app.get('/signin', User.showSignin);
+    app.get('/signup', User.showSignup);
     app.post('/user/signup', User.signup);
     app.post('/user/signin', User.signin);
     app.get('/logout', User.logout);

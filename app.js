@@ -34,7 +34,7 @@ app.use(session({
     },
     store: new MongoStore({
        url: dbUrl,
-       collection: 'sessions'
+       collection: 'sessions' // Collection (default: sessions)
     })
 }));
 
