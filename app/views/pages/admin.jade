@@ -3,7 +3,7 @@ extends ../layout
 block content
     .container
         .row
-            form.form-horizontal(method="POST",action="/admin/movie/new")
+            form.form-horizontal(method="POST",action="/admin/new")
                 //- 隐藏域，存储电影id
                 input(type="hidden", name="movie[_id]", value="#{movie._id}")
                 .form-group

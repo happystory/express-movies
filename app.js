@@ -38,10 +38,12 @@ app.use(session({
     })
 }));
 
-app.set('views', './views/pages');
+app.set('views', './app/views/pages');
 app.set('view engine', 'jade');
 
 if (app.get('env') === 'development') {
+    // TODO 
+    app.set('showStackError', true);
     app.use(logger('dev'));
     app.locals.pretty = true;
     // enable logging collection methods + arguments to the console
