@@ -1,0 +1,21 @@
+{
+  "name": "imooc-movies",
+  "description": "node express mongoose",
+  "main": "app.js",
+  "authors": [
+    "liuyao"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.1.1"
+  }
+}

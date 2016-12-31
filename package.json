@@ -1,0 +1,24 @@
+{
+  "name": "imooc-movies",
+  "version": "1.0.0",
+  "description": "node express mongoose",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "liuyao",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "jade": "^1.11.0",
+    "moment": "^2.17.1",
+    "mongoose": "^4.7.3",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-nodemon": "^2.2.1"
+  }
+}
