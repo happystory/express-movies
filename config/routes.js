@@ -1,6 +1,7 @@
 const Index = require('../app/controllers/index');
 const User = require('../app/controllers/user');
 const Movie = require('../app/controllers/movie');
+const Comment = require('../app/controllers/comment');
 
 module.exports = function(app) {
     app.use((req, res, next) => {
@@ -27,4 +28,7 @@ module.exports = function(app) {
     app.post('/admin/new', User.signinRequired, User.adminRequired, Movie.save);
     app.get('/admin/update/:id', User.signinRequired, User.adminRequired, Movie.update);
     app.delete('/admin/list', User.signinRequired, User.adminRequired, Movie.del);
+
+    //Comment
+    app.post('/user/comment', User.signinRequired, Comment.save);
 };

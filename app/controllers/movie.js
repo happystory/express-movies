@@ -1,4 +1,5 @@
 const Movie = require('../models/movie');
+const Comment = require('../models/comment');
 const _ = require('underscore');
 
 // detail page
@@ -12,10 +13,38 @@ exports.detail = function(req, res) {
         if (!movie) {
             return res.status(404).send('Not Found');
         }
-        res.render('detail', {
-            title: 'imooc ' + movie.title,
-            movie: movie
-        });
+
+        // 通过回调
+        // Comment.find({movie: id}, function(err, comments) {
+        //     if (err) {
+        //         console.error(err);
+        //     }
+        //     console.log(comments);
+        //     res.render('detail', {
+        //         title: 'imooc ' + movie.title,
+        //         movie: movie,
+        //         comments: comments
+        //     });
+        // });
+        
+        Comment
+            .find({movie: id})
+            // Model.populate(docs, options, [callback(err,doc)])
+            // Populates document references.
+            // Parameters:
+            // docs <Document, Array> Either a single document or array of documents to populate.
+            // options <Object> A hash of key/val (path, options) used for population.
+            .populate('from', 'name')
+            .exec(function(err, comments) {
+                if (err) {
+                    console.error(err);
+                }
+                res.render('detail', {
+                    title: 'imooc ' + movie.title,
+                    movie: movie,
+                    comments: comments
+                });
+            });
     });
 };
 
