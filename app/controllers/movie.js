@@ -35,10 +35,12 @@ exports.detail = function(req, res) {
             // docs <Document, Array> Either a single document or array of documents to populate.
             // options <Object> A hash of key/val (path, options) used for population.
             .populate('from', 'name')
+            .populate('reply.from reply.to', 'name')
             .exec(function(err, comments) {
                 if (err) {
                     console.error(err);
                 }
+                // console.log(comments);
                 res.render('detail', {
                     title: 'imooc ' + movie.title,
                     movie: movie,

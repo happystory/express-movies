@@ -14,10 +14,11 @@ var CommentSchema = new Schema({
         type: ObjectId,
         ref: 'users'
     },
-    to: {
-        type: ObjectId,
-        ref: 'users'
-    },
+    reply: [{
+        from: {type: ObjectId, ref: 'users'},
+        to: {type: ObjectId, ref: 'users'},
+        content: String
+    }],
     content: String,
     meta: {
         createAt: {

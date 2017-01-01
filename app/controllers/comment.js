@@ -2,15 +2,35 @@ const Comment = require('../models/comment');
 
 // admin poster movie
 exports.save = function(req, res) {
-    var comment = req.body.comment;
-    var movieId = comment.movie;
+    var _comment = req.body.comment;
+    var movieId = _comment.movie;
 
-    _comment = new Comment(comment);
+    if (_comment.cid) {
+        Comment.findById(_comment.cid, function(err, comment) {
+            if (err) {
+                console.error(err);
+            }
+            var reply = {
+                from: _comment.from,
+                to: _comment.tid,
+                content: _comment.content
+            };
 
-    _comment.save((err, comment) => {
-        if (err) {
-            console.error(err);
-        }
-        res.redirect(303, '/movie/' + movieId);
-    });
+            comment.reply.push(reply);
+            comment.save(function(err, comment) {
+                if (err) {
+                    console.error(err);
+                }
+                res.redirect(303, '/movie/' + movieId);
+            });
+        });
+    } else {
+        var comment = new Comment(_comment);
+        comment.save((err, comment) => {
+            if (err) {
+                console.error(err);
+            }
+            res.redirect(303, '/movie/' + movieId);
+        });
+    }
 };
