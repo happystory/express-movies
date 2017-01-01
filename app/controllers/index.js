@@ -35,11 +35,13 @@ exports.index = function(req, res) {
 
 exports.search = function(req, res) {
     var catId = req.query.cat;
+    var q = req.query.q;
     var page = parseInt(req.query.p, 10) || 0;
     var count = 2;
     var index = page * count;
 
-    Category
+    if (catId) {
+        Category
         .find({_id: catId})
         .populate({
             path: 'movies', 
@@ -66,4 +68,22 @@ exports.search = function(req, res) {
                 totalPage: Math.ceil(movies.length / count)
             });
         });
+    } else {
+        Movie
+            .find({title: new RegExp(q + '.*', 'i')})
+            .exec(function(err, movies) {
+                if (err) {
+                    console.error(err);
+                }
+                var results = movies.slice(index, index + count);
+                res.render('results', {
+                    title: 'imooc 结果列表页面',
+                    keyword: q,
+                    results: results,
+                    query: 'q=' + q,
+                    currentPage: (page + 1),
+                    totalPage: Math.ceil(movies.length / count)
+                });
+            });
+    }
 };
