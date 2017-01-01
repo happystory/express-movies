@@ -11,6 +11,10 @@ block content
                     .col-sm-10
                         input#inputTitle.form-control(type="text", name="movie[title]", value="#{movie.title}")
                 .form-group
+                    label.col-sm-2.control-label(for="inputCategory") 电影分类
+                    .col-sm-10
+                        input#inputCategory.form-control(type="text", name="movie[categoryName]", value="#{movie.categoryName}")
+                .form-group
                     label.col-sm-2.control-label(for="inputDirector") 电影导演
                     .col-sm-10
                         input#inputDirector.form-control(type="text", name="movie[director]", value="#{movie.director}")
