@@ -12,7 +12,7 @@ block content
             th 修改
             th 删除
         tbody
-          each item in catetories
+          each item in categories
             tr(class="item-id-#{item._id}")
               td #{item.name}
               td #{moment(item.meta.updateAt).format('MM/DD/YYYY')}

@@ -1,5 +1,6 @@
 const Movie = require('../models/movie');
 const Comment = require('../models/comment');
+const Category = require('../models/category');
 const _ = require('underscore');
 
 // detail page
@@ -26,9 +27,9 @@ exports.detail = function(req, res) {
         //         comments: comments
         //     });
         // });
-        
+
         Comment
-            .find({movie: id})
+            .find({ movie: id })
             // Model.populate(docs, options, [callback(err,doc)])
             // Populates document references.
             // Parameters:
@@ -53,18 +54,12 @@ exports.detail = function(req, res) {
 
 // admin page
 exports.new = function(req, res) {
-    res.render('admin', {
-        title: 'imooc 后台录入页',
-        movie: {
-            director: '',
-            country: '',
-            title: '',
-            year: '',
-            poster: '',
-            language: '',
-            flash: '',
-            summary: ''
-        }
+    Category.find({}, function(err, categories) {
+        res.render('admin', {
+            title: 'imooc 后台录入页',
+            categories: categories,
+            movie: {}
+        });
     });
 };
 
@@ -80,9 +75,15 @@ exports.update = function(req, res) {
             if (!movie) {
                 return res.status(404).send('Not Found');
             }
-            res.render('admin', {
-                title: 'imooc 后台更新页',
-                movie: movie
+            Category.find({}, function(err, categories) {
+                if (err) {
+                    console.error(err);
+                }
+                res.render('admin', {
+                    title: 'imooc 后台更新页',
+                    movie: movie,
+                    categories: categories
+                });
             });
         });
     }
@@ -94,7 +95,7 @@ exports.save = function(req, res) {
     var movieObj = req.body.movie;
     var _movie;
 
-    if (id !== 'undefined') {
+    if (id) {
         Movie.findById(id, (err, movie) => {
             if (err) {
                 console.log(err);
@@ -107,27 +108,59 @@ exports.save = function(req, res) {
                 if (err) {
                     console.error(err);
                 }
-                // 默认为302重定向 暂时性转移(Temporarily Moved )
-                res.redirect(303, '/movie/' + movie._id);
+                Category.fetch(function(err, categories) {
+                    if (err) {
+                        console.error(err);
+                    }
+                    // 删除原有数据
+                    categories.forEach((cat, index) => {
+                        var order = cat.movies.indexOf(id);
+                        if (order !== -1) {
+                            cat.movies.splice(order, 1);
+                            cat.save(function(err, category) {
+                                if (err) {
+                                    console.error(err);
+                                }
+
+                                // 保存新数据
+                                Category.findById(movieObj.category, function(err, category) {
+                                    if (err) {
+                                        console.error(err);
+                                    }
+                                    category.movies.push(_movie._id);
+                                    category.save(function(err, category) {
+                                        if (err) {
+                                            console.error(err);
+                                        }
+                                        res.redirect(303, '/movie/' + movie._id);
+                                    });
+                                });
+                            });
+                        }
+                    });
+                });
             });
         });
     } else {
-        _movie = new Movie({
-            director: movieObj.director,
-            title: movieObj.title,
-            country: movieObj.country,
-            language: movieObj.language,
-            year: movieObj.year,
-            poster: movieObj.poster,
-            summary: movieObj.summary,
-            flash: movieObj.flash
-        });
+        _movie = new Movie(movieObj);
+        var categoryId = _movie.category;
 
         _movie.save((err, movie) => {
             if (err) {
                 console.error(err);
             }
-            res.redirect(303, '/movie/' + movie._id);
+            Category.findById(categoryId, function(err, category) {
+                if (err) {
+                    console.error(err);
+                }
+                category.movies.push(_movie._id);
+                category.save(function(err, category) {
+                    if (err) {
+                        console.error(err);
+                    }
+                    res.redirect(303, '/movie/' + movie._id);
+                });
+            });
         });
     }
 };

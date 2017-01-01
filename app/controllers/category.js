@@ -24,13 +24,13 @@ exports.save = function(req, res) {
 
 // categorylist page
 exports.list = function(req, res) {
-    Category.fetch(function(err, catetories) {
+    Category.fetch(function(err, categories) {
         if (err) {
             console.error(err);
         }
         res.render('categorylist', {
             title: 'imooc 分类列表页',
-            catetories: catetories
+            categories: categories
         });
     });
 };
