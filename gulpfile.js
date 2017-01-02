@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var nodemon = require('gulp-nodemon');
 var livereload = require('gulp-livereload');
+var mocha = require('gulp-mocha');
 
 // 路径配置
 var paths = {
@@ -40,3 +41,12 @@ gulp.task('livereload', function() {
 
 // default 任务，同时开启serve、livereload任务
 gulp.task('default', ['serve', 'livereload']);
+
+gulp.task('mochaTest', function() {
+    gulp.src('test/**/*.js')
+        .pipe(mocha({reporter: 'spec'}));
+});
+
+// test 任务
+gulp.task('test', ['mochaTest']);
+

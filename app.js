@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -20,6 +21,26 @@ db.once('open', function() {
     // we're connected!
 });
 
+// models loading
+var models_path = __dirname + '/app/models';
+var walk = function(path) {
+    fs
+        .readdirSync(path)
+        .forEach(function(file) {
+            var newPath = path + '/' + file;
+            var stat = fs.statSync(newPath);
+
+            if (stat.isFile()) {
+                if (/(.*)\.(js|coffee)/.test(file)) {
+                    require(newPath);
+                }
+            } else if (stat.isDirectory()) {
+                walk(newPath);
+            }
+        });
+};
+walk(models_path);
+
 app.use(express.static(path.join(__dirname + '/public')));
 // parse application/x-www-form-urlencoded 
 // if extended is true, https://www.npmjs.com/package/qs#readme
@@ -33,8 +54,8 @@ app.use(session({
         maxAge: 3600000
     },
     store: new MongoStore({
-       url: dbUrl,
-       collection: 'sessions' // Collection (default: sessions)
+        url: dbUrl,
+        collection: 'sessions' // Collection (default: sessions)
     })
 }));
 app.use(require('connect-multiparty')());
@@ -54,5 +75,5 @@ if (app.get('env') === 'development') {
 require('./config/routes')(app);
 
 app.listen(port, function() {
-   console.log('Imooc started on port ' + port); 
+    console.log('Imooc started on port ' + port);
 });
