@@ -37,6 +37,7 @@ app.use(session({
        collection: 'sessions' // Collection (default: sessions)
     })
 }));
+app.use(require('connect-multiparty')());
 
 app.set('views', './app/views/pages');
 app.set('view engine', 'jade');

@@ -2,6 +2,8 @@ const Movie = require('../models/movie');
 const Comment = require('../models/comment');
 const Category = require('../models/category');
 const _ = require('underscore');
+const fs = require('fs');
+const path = require('path');
 
 // detail page
 exports.detail = function(req, res) {
@@ -95,6 +97,10 @@ exports.save = function(req, res) {
     var movieObj = req.body.movie;
     var _movie;
 
+    if (req.poster) {
+        movieObj.poster = req.poster;
+    }
+
     if (id) {
         Movie.findById(id, (err, movie) => {
             if (err) {
@@ -183,6 +189,30 @@ exports.save = function(req, res) {
             });
         });
     }
+};
+
+// middle for saving poster
+exports.savePoster = function(req, res, next) {
+    var posterData = req.files.uploadPoster;
+    var filePath = posterData.path;
+    var originalFilename = posterData.originalFilename;
+
+    if (originalFilename) {
+        var timestamp = Date.now();
+        var type = posterData.type.split('/')[1];
+        var poster = originalFilename.split('.')[0] + '_' + timestamp + '.' + type;
+        var newPath = path.resolve(__dirname, '../../', 'public/upload/' + poster);
+
+        fs.rename(filePath, newPath, function(err) {
+            if (err) {
+                console.error(err);
+            }
+            req.poster = poster;
+            next();
+        });
+    } else {
+        next();
+    } 
 };
 
 // list page
