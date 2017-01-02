@@ -208,8 +208,18 @@ exports.savePoster = function(req, res, next) {
         var timestamp = Date.now();
         var type = posterData.type.split('/')[1];
         var poster = originalFilename.split('.')[0] + '_' + timestamp + '.' + type;
-        var newPath = path.resolve(__dirname, '../../', 'public/upload/' + poster);
 
+        var dataDir = path.resolve(__dirname, '../../', 'public/upload');
+
+        // 如果不存在upload目录则创建该目录
+        fs.access(dataDir, function(err) {
+            if (err) {
+                fs.mkdirSync(dataDir);
+                return;
+            }
+        });
+
+        var newPath = path.resolve(dataDir + poster);
         fs.rename(filePath, newPath, function(err) {
             if (err) {
                 console.error(err);
