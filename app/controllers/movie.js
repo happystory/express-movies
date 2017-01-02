@@ -9,6 +9,12 @@ const path = require('path');
 exports.detail = function(req, res) {
     var id = req.params.id;
 
+    Movie.update({_id: id}, {$inc: {pv: 1}}, function(err) {
+        if (err) {
+            console.error(err);
+        }
+    });
+
     Movie.findById(id, (err, movie) => {
         if (err) {
             console.error(err);
@@ -29,6 +35,7 @@ exports.detail = function(req, res) {
         //         comments: comments
         //     });
         // });
+        
 
         Comment
             .find({ movie: id })
